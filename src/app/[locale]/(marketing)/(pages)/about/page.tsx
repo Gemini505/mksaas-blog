@@ -1,0 +1,140 @@
+import FriendsSection from '@/components/about/friends';
+import HomeDiscordSection from '@/components/home/home-discord';
+import HomeNewsletterSection from '@/components/home/home-newsletter';
+import HomeProjectsSection from '@/components/home/home-projects';
+import { DiscordIcon } from '@/components/icons/discord';
+import Container from '@/components/layout/container';
+import { AnimatedDiv, AnimatedItem } from '@/components/shared/animated-section';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { websiteConfig } from '@/config/website';
+import { constructMetadata } from '@/lib/metadata';
+import { cn } from '@/lib/utils';
+import { MailIcon, TwitterIcon } from 'lucide-react';
+import type { Metadata } from 'next';
+import type { Locale } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata | undefined> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
+  const pt = await getTranslations({ locale, namespace: 'AboutPage' });
+
+  return constructMetadata({
+    title: pt('title') + ' | ' + t('title'),
+    description: pt('description'),
+    locale,
+    pathname: '/about',
+  });
+}
+
+/**
+ * inspired by https://astro-nomy.vercel.app/about
+ */
+export default async function AboutPage() {
+  const t = await getTranslations('AboutPage');
+
+  return (
+    <div className="flex flex-col gap-8">
+      <Container className="py-16 px-6">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* about section */}
+          <AnimatedDiv className="relative max-w-(--breakpoint-md) mx-auto mt-8 md:mt-16">
+            <div className="mx-auto flex flex-col justify-between">
+              <div className="grid md:grid-cols-2 gap-8 md:gap-0">
+                {/* avatar and name */}
+                <AnimatedItem>
+                  <div className="flex items-center gap-8">
+                    <Avatar className="size-32 p-0.5">
+                      <AvatarImage
+                        className="rounded-full border-4 border-gray-200"
+                        src="/logo.png"
+                        alt="Avatar"
+                      />
+                      <AvatarFallback>
+                        <div className="size-32 text-muted-foreground" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h1 className="text-4xl text-foreground">
+                        {t('authorName')}
+                      </h1>
+                      <p className="text-base text-muted-foreground mt-2">
+                        {t('authorBio')}
+                      </p>
+                    </div>
+                  </div>
+                </AnimatedItem>
+
+                {/* introduction */}
+                <AnimatedItem>
+                  <p className="mb-8 text-base text-muted-foreground">
+                    {t('introduction')}
+                  </p>
+
+                  <div className="flex items-center gap-4">
+                    {websiteConfig.metadata.social?.twitter && (
+                      <a
+                        href={websiteConfig.metadata.social.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                          buttonVariants({ variant: 'outline' }),
+                          'rounded-lg cursor-pointer'
+                        )}
+                      >
+                        <TwitterIcon className="mr-1 size-4" />
+                        {t('followMe')}
+                      </a>
+                    )}
+                    {/* {websiteConfig.mail.supportEmail && (
+                      <div className="flex items-center gap-4">
+                        <Button className="rounded-lg cursor-pointer">
+                          <MailIcon className="mr-1 size-4" />
+                          <a href={`mailto:${websiteConfig.mail.supportEmail}`}>
+                            {t('talkWithMe')}
+                          </a>
+                        </Button>
+                      </div>
+                    )} */}
+                    {websiteConfig.metadata?.social?.discord && (
+                      <a
+                        href={`${websiteConfig.metadata.social.discord}`}
+                        className={cn(
+                          buttonVariants({ variant: 'default' }),
+                          'rounded-lg cursor-pointer'
+                        )}
+                      >
+                        <DiscordIcon className="mr-1 size-4" />
+                        {t('talkWithMe')}
+                      </a>
+                    )}
+                  </div>
+                </AnimatedItem>
+              </div>
+            </div>
+          </AnimatedDiv>
+
+          {/* image section */}
+          {/* <BlurFadeDemo /> */}
+        </div>
+      </Container>
+
+      {/* projects section */}
+      <HomeProjectsSection />
+
+      {/* friends section */}
+      <FriendsSection />
+
+      {/* newsletter */}
+      {/* <HomeNewsletterSection /> */}
+
+      {/* discord */}
+      <HomeDiscordSection />
+    </div>
+  );
+}
